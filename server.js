@@ -1,12 +1,14 @@
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
+const Grape = require('grenache-grape').Grape
 const OrderBook = require('./src/orderbook/orderbook');
 const server = http.createServer(app);
 const io = socketIo(server);
 const app = express();
 
 const healthRoute = require('./src/routes/health');
+const orderBook = new OrderBook();
 
 app.use(express.json());
 
@@ -21,11 +23,9 @@ io.on('connection', (socket) => {
   console.log('Client connected');
 
   socket.on('submitOrder', (order) => {
-    // Handle incoming order submission
     orderBook.addOrder(order);
 
-    // Implement order matching logic here
-    const matchingResult = matchOrders(order);
+    const matchingResult = orderBook.matchOrders(order);
 
     if (matchingResult.matches.length > 0) {
       io.emit('orderMatched', matchingResult.matches);

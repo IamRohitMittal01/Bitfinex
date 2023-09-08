@@ -1,72 +1,44 @@
 class OrderBook {
   constructor() {
-    this.orders = {};
+    this.orders = {
+      BUY: [],
+      SELL: [],
+    };
   }
 
-  addOrder(orderId, clientId, symbol, type, price, quantity) {
-    if (!this.orders[symbol]) {
-      // Create a new order book for the symbol if it doesn't exist
-      this.orders[symbol] = { buys: [], sells: [] };
-    }
-
-    // Add the order to the appropriate side (BUY or SELL) of the order book
-    const order = { orderId, clientId, symbol, type, price, quantity };
-    if (type === 'BUY') {
-      this.orders[symbol].buys.push(order);
-    } else if (type === 'SELL') {
-      this.orders[symbol].sells.push(order);
-    }
+  addOrder(order) {
+    const { type } = order;
+    this.orders[type].push(order);
+    this.sortOrdersByPrice(type);
   }
 
-  getOrderBook(symbol) {
-    if (!this.orders[symbol]) {
-      return { buys: [], sells: [] }; // Return empty order book if symbol not found
-    }
-
-    return this.orders[symbol];
+  getOrderBook(type) {
+    return this.orders[type];
   }
 
-  matchOrders() {
-    const matchedOrders = [];
-    const remainingBuyOrders = [];
-    const remainingSellOrders = [];
-
-    for (const buyOrder of this.buyOrders) {
-      for (const sellOrder of this.sellOrders) {
-        if (
-          buyOrder.symbol === sellOrder.symbol &&
-          buyOrder.price >= sellOrder.price &&
-          buyOrder.quantity > 0 &&
-          sellOrder.quantity > 0
-        ) {
-          const matchedQuantity = Math.min(buyOrder.quantity, sellOrder.quantity);
-          matchedOrders.push({
-            buyOrderId: buyOrder.id,
-            sellOrderId: sellOrder.id,
-            symbol: buyOrder.symbol,
-            price: sellOrder.price,
-            quantity: matchedQuantity,
-          });
-
-          buyOrder.quantity -= matchedQuantity;
-          sellOrder.quantity -= matchedQuantity;
-
-          if (buyOrder.quantity > 0) {
-            remainingBuyOrders.push(buyOrder);
-          }
-
-          if (sellOrder.quantity > 0) {
-            remainingSellOrders.push(sellOrder);
-          }
-        }
-      }
-    }
-
-    this.buyOrders = remainingBuyOrders;
-    this.sellOrders = remainingSellOrders;
-
-    return matchedOrders;
+  sortOrdersByPrice(type) {
+    this.orders[type].sort((a, b) => a.price - b.price);
   }
+
 }
 
-module.exports = OrderBook;
+const orderBook = new OrderBook();
+
+const buyOrder1 = { type: 'BUY', price: 500, quantity: 5 };
+const buyOrder2 = { type: 'BUY', price: 490, quantity: 3 };
+const sellOrder1 = { type: 'SELL', price: 510, quantity: 4 };
+const sellOrder2 = { type: 'SELL', price: 520, quantity: 2 };
+
+orderBook.addOrder(buyOrder1);
+orderBook.addOrder(buyOrder2);
+orderBook.addOrder(sellOrder1);
+orderBook.addOrder(sellOrder2);
+
+const buyOrders = orderBook.getOrderBook('BUY');
+const sellOrders = orderBook.getOrderBook('SELL');
+
+console.log('BUY Orders:');
+console.log(buyOrders);
+
+console.log('SELL Orders:');
+console.log(sellOrders);

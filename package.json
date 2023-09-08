@@ -27,6 +27,7 @@
     "grenache-nodejs-link": "^1.0.0",
     "http": "^0.0.1-security",
     "nodemon": "^3.0.1",
-    "socket.io": "^4.7.2"
+    "socket.io": "^4.7.2",
+    "socket.io-client": "^4.7.2"
   }
 }
