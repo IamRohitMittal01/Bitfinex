@@ -1,0 +1,2 @@
+# Bitfinex
+Assignment for Bitfinex
